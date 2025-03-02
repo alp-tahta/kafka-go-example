@@ -3,14 +3,27 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 	"user/handlers"
+	"user/messaging"
+	"user/service"
 )
 
 func main() {
+	broker := os.Getenv("KAFKA_BROKER")
+	log.Println(broker)
+	time.Sleep(10 * time.Second)
+	log.Println("HIIIIIIIIIIIIII")
 	port := ":8080"
+	msgBrokes := []string{broker}
 
-	handler := handlers.NewHandler()
+	msgClient, err := messaging.NewKafkaClient(msgBrokes, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	service := service.NewService(msgClient)
+	handler := handlers.NewHandler(service)
 
 	router := http.NewServeMux()
 	router.HandleFunc("GET /health", handler.HealthChecker)

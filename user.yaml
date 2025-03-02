@@ -1,0 +1,22 @@
+services:
+  user:
+    container_name: user
+    build:
+      context: ./user
+      dockerfile: Dockerfile.multistage
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+    # depends_on:
+    #   - kafka
+    #   #  kafka:
+    #   #   condition: service_healthy
+    #   #   restart: true
+    environment:
+      KAFKA_BROKER: broker:9092
+      KAFKA_TOPIC: my_topic
+    ports:
+      - 8080:8080
+    command: ["./user"]
